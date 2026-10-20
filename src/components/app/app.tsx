@@ -12,7 +12,7 @@ export default function App({offers, reviews}: {offers: OfferDetails[]; reviews:
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage offers={offers} />} />
+        <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/favorites" element={<PrivateRoute isAuthorized={false}><FavoritesPage offers={offers} /></PrivateRoute>} />
         <Route path="/offer/:id" element={<OfferPage offers={offers} reviews={reviews} />} />
