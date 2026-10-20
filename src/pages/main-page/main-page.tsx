@@ -1,3 +1,5 @@
+import Spinner from '../../components/spinner/spinner';
+import {fetchOffers} from '../../store/api-actions';
 import {useState} from 'react';
 import SortOptions from '../../components/sort-options/sort-options';
 import {sortOffers} from '../../utils';
@@ -13,10 +15,30 @@ export default function MainPage(): JSX.Element {
   const [sort, setSort] = useState('Popular');
   const [activeId, setActiveId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
+  const isLoading = useAppSelector((state) => state.isLoading);
+  const error = useAppSelector((state) => state.error);
   const cityName = useAppSelector((state) => state.city);
   const allOffers = useAppSelector((state) => state.offers);
   const offers = allOffers.filter((offer) => offer.city.name === cityName);
   const city = cities.find((item) => item.name === cityName) ?? cities[0];
+  if (isLoading) {
+    return <><Header /><Spinner /></>;
+  }
+  if (error) {
+    return (
+      <>
+        <Header />
+        <main className="container">
+          <p role="alert">{error}</p>
+          <button type="button" onClick={() => {
+            void dispatch(fetchOffers());
+          }}
+          >Try again
+          </button>
+        </main>
+      </>
+    );
+  }
   return (
     <div className="page page--gray page--main"><Header />
       <main className={`page__main page__main--index ${offers.length === 0 ? 'page__main--index-empty' : ''}`}><h1 className="visually-hidden">Cities</h1>

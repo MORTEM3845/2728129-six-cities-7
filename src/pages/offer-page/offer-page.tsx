@@ -1,3 +1,8 @@
+import {useEffect, useState} from 'react';
+import {isAxiosError} from 'axios';
+import {api} from '../../store';
+import {Offer} from '../../types/offer';
+import Spinner from '../../components/spinner/spinner';
 import {Review} from '../../types/review';
 import ReviewList from '../../components/review-list/review-list';
 import OfferList from '../../components/offer-list/offer-list';
@@ -8,14 +13,44 @@ import Header from '../../components/header/header';
 import ReviewForm from '../../components/review-form/review-form';
 import NotFoundPage from '../not-found-page/not-found-page';
 
-export default function OfferPage({offers, reviews}: {offers: OfferDetails[]; reviews: Review[]}): JSX.Element {
+export default function OfferPage(): JSX.Element {
   const {id} = useParams();
-  const offer = offers.find((item) => item.id === id);
-  if (!offer) {
+  const [offer, setOffer] = useState<OfferDetails | null>(null);
+  const [nearby, setNearby] = useState<Offer[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [status, setStatus] = useState('loading');
+  useEffect(() => {
+    const controller = new AbortController();
+    setStatus('loading');
+    const load = async () => {
+      try {
+        const [details, neighbors, comments] = await Promise.all([
+          api.get<OfferDetails>(`/offers/${id ?? ''}`, {signal: controller.signal}),
+          api.get<Offer[]>(`/offers/${id ?? ''}/nearby`, {signal: controller.signal}),
+          api.get<Review[]>(`/comments/${id ?? ''}`, {signal: controller.signal}),
+        ]);
+        if (controller.signal.aborted) {
+          return;
+        }
+        setOffer(details.data); setNearby(neighbors.data.slice(0, 3)); setReviews(comments.data); setStatus('ready');
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setStatus(isAxiosError(error) && error.response?.status === 404 ? 'missing' : 'error');
+        }
+      }
+    };
+    void load();
+    return () => controller.abort();
+  }, [id]);
+  if (status === 'loading') {
+    return <><Header /><Spinner /></>;
+  }
+  if (status === 'missing') {
     return <NotFoundPage />;
   }
-
-  const nearby = offers.filter((item) => item.id !== offer.id).slice(0, 3);
+  if (status === 'error' || !offer) {
+    return <><Header /><main className="container"><p role="alert">Could not load this offer. Please reload the page.</p></main></>;
+  }
   return (
     <div className="page">
       <Header />
