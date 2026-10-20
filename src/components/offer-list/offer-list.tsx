@@ -9,5 +9,5 @@ export default function OfferList({offers, variant = 'cities', onActive}: Props)
   const handleActive = (id: string | null) => {
     setActiveId(id); onActive?.(id);
   };
-  return <div className={`${variant}__places-list places__list ${variant === 'cities' ? 'tabs__content' : ''}`} data-active-offer={activeId}>{offers.map((offer) => <PlaceCard key={offer.id} offer={offer} variant={variant} onActive={handleActive} />)}</div>;
+  return <div className={`${variant === 'near-places' ? 'near-places__list' : `${variant}__places-list`} places__list ${variant === 'cities' ? 'tabs__content' : ''}`} data-active-offer={activeId}>{offers.map((offer) => <PlaceCard key={offer.id} offer={offer} variant={variant} onActive={handleActive} />)}</div>;
 }
