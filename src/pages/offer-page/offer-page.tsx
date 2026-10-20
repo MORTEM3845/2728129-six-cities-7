@@ -1,3 +1,4 @@
+import {useAppSelector} from '../../hooks';
 import {useEffect, useState} from 'react';
 import {isAxiosError} from 'axios';
 import {api} from '../../store';
@@ -14,6 +15,7 @@ import ReviewForm from '../../components/review-form/review-form';
 import NotFoundPage from '../not-found-page/not-found-page';
 
 export default function OfferPage(): JSX.Element {
+  const isAuthorized = useAppSelector((state) => state.authorizationStatus === 'Auth');
   const {id} = useParams();
   const [offer, setOffer] = useState<OfferDetails | null>(null);
   const [nearby, setNearby] = useState<Offer[]>([]);
@@ -62,9 +64,7 @@ export default function OfferPage(): JSX.Element {
           </div>
           <div className="offer__container container">
             <div className="offer__wrapper">
-              <div className="offer__mark">
-                <span>Premium</span>
-              </div>
+              {offer.isPremium && <div className="offer__mark"><span>Premium</span></div>}
               <div className="offer__name-wrapper">
                 <h1 className="offer__name">
                   {offer.title}
@@ -81,11 +81,11 @@ export default function OfferPage(): JSX.Element {
                   <span style={{width: `${Math.round(offer.rating) * 20}%`}}></span>
                   <span className="visually-hidden">Rating</span>
                 </div>
-                <span className="offer__rating-value rating__value">4.8</span>
+                <span className="offer__rating-value rating__value">{offer.rating}</span>
               </div>
               <ul className="offer__features">
                 <li className="offer__feature offer__feature--entire">
-                  Apartment
+                  {offer.type.charAt(0).toUpperCase() + offer.type.slice(1)}
                 </li>
                 <li className="offer__feature offer__feature--bedrooms">
                   {offer.bedrooms} {offer.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}
@@ -102,21 +102,19 @@ export default function OfferPage(): JSX.Element {
               <div className="offer__host">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
-                  <div className="offer__avatar-wrapper offer__avatar-wrapper--pro user__avatar-wrapper">
+                  <div className={`offer__avatar-wrapper user__avatar-wrapper ${offer.host.isPro ? 'offer__avatar-wrapper--pro' : ''}`}>
                     <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74" alt="Host avatar" />
                   </div>
                   <span className="offer__user-name">
                     {offer.host.name}
                   </span>
-                  <span className="offer__user-status">
-                    Pro
-                  </span>
+                  {offer.host.isPro && <span className="offer__user-status">Pro</span>}
                 </div>
                 <div className="offer__description"><p className="offer__text">{offer.description}</p></div>
               </div>
               <section className="offer__reviews reviews">
                 <ReviewList reviews={reviews} />
-                <ReviewForm />
+                {isAuthorized && <ReviewForm />}
               </section>
             </div>
           </div>
