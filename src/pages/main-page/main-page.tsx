@@ -1,6 +1,7 @@
 import {Offer} from '../../types/offer';
 import Header from '../../components/header/header';
 import OfferList from '../../components/offer-list/offer-list';
+import Map from '../../components/map/map';
 
 export default function MainPage({offers}: {offers: Offer[]}): JSX.Element {
   return (
@@ -68,7 +69,7 @@ export default function MainPage({offers}: {offers: Offer[]}): JSX.Element {
               <OfferList offers={offers} />
             </section>
             <div className="cities__right-section">
-              <section className="cities__map map"></section>
+              {offers[0] && <Map city={offers[0].city} offers={offers} />}
             </div>
           </div>
         </div>
