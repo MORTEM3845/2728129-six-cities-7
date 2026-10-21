@@ -33,15 +33,18 @@ describe('Domain reducers', () => {
     state = reducer(state, fetchFavorites.pending('request', undefined));
     expect(state.offersData.favoritesStatus).toBe('loading');
     state = reducer(state, fetchFavorites.fulfilled([], 'request', undefined));
+    state = reducer(state, toggleFavorite.pending('add', {id: offer.id, isFavorite: false}));
     state = reducer(state, toggleFavorite.fulfilled({...offer, isFavorite: true}, 'add', {id: offer.id, isFavorite: false}));
     expect(selectFavoriteCount(state)).toBe(1);
     expect(state.offersData.offers[0].isFavorite).toBe(true);
+    state = reducer(state, toggleFavorite.pending('remove', {id: offer.id, isFavorite: true}));
     state = reducer(state, toggleFavorite.fulfilled(offer, 'remove', {id: offer.id, isFavorite: true}));
     expect(selectFavoriteCount(state)).toBe(0);
     expect(state.offersData.offers[0].isFavorite).toBe(false);
   });
   it('clears private data when the session ends', () => {
     let state = reducer(undefined, setUser(user));
+    state = reducer(state, fetchFavorites.pending('request', undefined));
     state = reducer(state, fetchFavorites.fulfilled([{...offer, isFavorite: true}], 'request', undefined));
     state = reducer(state, setUser(null));
     expect(state.userProcess).toMatchObject({user: null, authorizationStatus: 'NoAuth'});
@@ -58,6 +61,7 @@ describe('Domain reducers', () => {
     expect(state.userProcess.authError).toBeNull();
     state = reducer(state, logout.rejected(new Error('offline'), 'logout', undefined));
     expect(state.userProcess.authError).toBeTruthy();
+    state = reducer(state, fetchFavorites.pending('favorites', undefined));
     state = reducer(state, fetchFavorites.rejected(new Error('offline'), 'favorites', undefined));
     expect(state.offersData.favoritesStatus).toBe('error');
   });

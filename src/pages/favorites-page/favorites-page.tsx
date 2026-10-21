@@ -1,3 +1,4 @@
+import {changeCity} from '../../store/action';
 import {useEffect} from 'react';
 import {Link} from 'react-router-dom';
 import Header from '../../components/header/header';
@@ -38,7 +39,7 @@ export default function FavoritesPage(): JSX.Element {
           <ul className="favorites__list">
             {cities.map((city) => (
               <li key={city} className="favorites__locations-items">
-                <div className="favorites__locations locations locations--current"><div className="locations__item"><Link className="locations__item-link" to="/"><span>{city}</span></Link></div></div>
+                <div className="favorites__locations locations locations--current"><div className="locations__item"><Link className="locations__item-link" to="/" onClick={() => dispatch(changeCity(city))}><span>{city}</span></Link></div></div>
                 <OfferList offers={favorites.filter((offer) => offer.city.name === city)} variant="favorites" />
               </li>
             ))}

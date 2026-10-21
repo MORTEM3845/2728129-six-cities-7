@@ -18,7 +18,7 @@ export default function BookmarkButton({offer, variant = 'place-card'}: Props): 
     if (!isAuthorized) {
       navigate('/login'); return;
     }
-    if (isSaving) {
+    if (isSaving || favoritesStatus === 'loading') {
       return;
     }
     setIsSaving(true); setError(false);
@@ -32,7 +32,7 @@ export default function BookmarkButton({offer, variant = 'place-card'}: Props): 
   };
   return (
     <>
-      <button className={`${variant}__bookmark-button button ${isFavorite ? `${variant}__bookmark-button--active` : ''}`} type="button" aria-pressed={isFavorite} disabled={isSaving} onClick={() => {
+      <button className={`${variant}__bookmark-button button ${isFavorite ? `${variant}__bookmark-button--active` : ''}`} type="button" aria-pressed={isFavorite} disabled={isSaving || (isAuthorized && favoritesStatus === 'loading')} onClick={() => {
         void handleClick();
       }}
       >

@@ -73,6 +73,7 @@ describe('Controls', () => {
   });
   it('shows empty favorites after removing the last offer', async () => {
     const store = createTestStore(); store.dispatch(setUser(user));
+    store.dispatch(fetchFavorites.pending('request', undefined));
     store.dispatch(fetchFavorites.fulfilled([{...offer, isFavorite: true}], 'request', undefined));
     mock.onPost(`/favorite/${offer.id}/0`).reply(200, offer);
     wrap(<FavoritesPage />, store);

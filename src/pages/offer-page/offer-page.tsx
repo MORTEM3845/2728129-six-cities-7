@@ -1,7 +1,7 @@
 import BookmarkButton from '../../components/bookmark-button/bookmark-button';
 import {postReview} from '../../store/api-actions';
 import {useAppDispatch, useAppSelector} from '../../hooks';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {isAxiosError} from 'axios';
 import {api} from '../../store';
 import {Offer} from '../../types/offer';
@@ -23,8 +23,11 @@ export default function OfferPage(): JSX.Element {
   const [offer, setOffer] = useState<OfferDetails | null>(null);
   const [nearby, setNearby] = useState<Offer[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [status, setStatus] = useState('loading');
+  const [status, setStatus] = useState<'loading' | 'ready' | 'missing' | 'error'>('loading');
+  const [attempt, setAttempt] = useState(0);
+  const currentIdRef = useRef(id);
   useEffect(() => {
+    currentIdRef.current = id;
     const controller = new AbortController();
     setStatus('loading');
     const load = async () => {
@@ -46,7 +49,7 @@ export default function OfferPage(): JSX.Element {
     };
     void load();
     return () => controller.abort();
-  }, [id]);
+  }, [id, attempt]);
   if (status === 'loading') {
     return <><Header /><Spinner /></>;
   }
@@ -54,11 +57,13 @@ export default function OfferPage(): JSX.Element {
     return <NotFoundPage />;
   }
   if (status === 'error' || !offer) {
-    return <><Header /><main className="container"><p role="alert">Could not load this offer. Please reload the page.</p></main></>;
+    return <><Header /><main className="container"><p role="alert">Could not load this offer.</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>Try again</button></main></>;
   }
   const handleReviewSubmit = async (data: {comment: string; rating: number}) => {
     const review = await dispatch(postReview({offerId: offer.id, ...data})).unwrap();
-    setReviews((current) => [review, ...current]);
+    if (currentIdRef.current === offer.id) {
+      setReviews((current) => [review, ...current]);
+    }
   };
   return (
     <div className="page">
