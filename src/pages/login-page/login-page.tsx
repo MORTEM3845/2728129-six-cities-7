@@ -7,9 +7,9 @@ import {cities} from '../../const';
 import Spinner from '../../components/spinner/spinner';
 export default function LoginPage(): JSX.Element {
   const dispatch = useAppDispatch();
-  const status = useAppSelector((state) => state.authorizationStatus);
-  const isSubmitting = useAppSelector((state) => state.isLoggingIn);
-  const error = useAppSelector((state) => state.authError);
+  const status = useAppSelector((state) => state.userProcess.authorizationStatus);
+  const isSubmitting = useAppSelector((state) => state.userProcess.isLoggingIn);
+  const error = useAppSelector((state) => state.userProcess.authError);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [city] = useState(() => cities[Math.floor(Math.random() * cities.length)].name);

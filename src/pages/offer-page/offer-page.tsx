@@ -17,7 +17,7 @@ import NotFoundPage from '../not-found-page/not-found-page';
 
 export default function OfferPage(): JSX.Element {
   const dispatch = useAppDispatch();
-  const isAuthorized = useAppSelector((state) => state.authorizationStatus === 'Auth');
+  const isAuthorized = useAppSelector((state) => state.userProcess.authorizationStatus === 'Auth');
   const {id} = useParams();
   const [offer, setOffer] = useState<OfferDetails | null>(null);
   const [nearby, setNearby] = useState<Offer[]>([]);

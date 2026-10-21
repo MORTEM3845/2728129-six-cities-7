@@ -21,32 +21,32 @@ beforeEach(() => {
 describe('Offers and authentication', () => {
   it('starts in Paris and updates the selected city', () => {
     const store = makeStore();
-    expect(store.getState().city).toBe('Paris');
+    expect(store.getState().cityProcess).toBe('Paris');
     store.dispatch(changeCity('Amsterdam'));
-    expect(store.getState().city).toBe('Amsterdam');
+    expect(store.getState().cityProcess).toBe('Amsterdam');
   });
   it('finishes loading after a successful response', async () => {
     mock.onGet('/offers').reply(200, []);
     const store = makeStore();
     await store.dispatch(fetchOffers());
-    expect(store.getState()).toMatchObject({isLoading: false, error: null, offers: []});
+    expect(store.getState().offersData).toMatchObject({isLoading: false, error: null, offers: []});
   });
   it('handles a failed load and recovers on retry', async () => {
     mock.onGet('/offers').replyOnce(503);
     const store = makeStore();
     await store.dispatch(fetchOffers());
-    expect(store.getState().error).toBeTruthy();
-    expect(store.getState().isLoading).toBe(false);
+    expect(store.getState().offersData.error).toBeTruthy();
+    expect(store.getState().offersData.isLoading).toBe(false);
     mock.onGet('/offers').reply(200, []);
     await store.dispatch(fetchOffers());
-    expect(store.getState().error).toBeNull();
+    expect(store.getState().offersData.error).toBeNull();
   });
   it('treats a 401 as a guest and clears an expired token', async () => {
     saveToken('expired');
     mock.onGet('/login').reply(401);
     const store = makeStore();
     await store.dispatch(checkAuth());
-    expect(store.getState().authorizationStatus).toBe('NoAuth');
+    expect(store.getState().userProcess.authorizationStatus).toBe('NoAuth');
     expect(getToken()).toBe('');
   });
   it('saves login token and sends it with subsequent requests', async () => {
@@ -58,21 +58,21 @@ describe('Offers and authentication', () => {
     const store = makeStore();
     await store.dispatch(login({email: user.email, password: 'Test123'}));
     expect(getToken()).toBe('test-token');
-    expect(store.getState()).toMatchObject({authorizationStatus: 'Auth', user, isLoggingIn: false});
+    expect(store.getState().userProcess).toMatchObject({authorizationStatus: 'Auth', user, isLoggingIn: false});
   });
   it('shows a recoverable login error', async () => {
     mock.onPost('/login').reply(400);
     const store = makeStore();
     await store.dispatch(login({email: user.email, password: 'Test123'}));
-    expect(store.getState().authError).toBeTruthy();
-    expect(store.getState().isLoggingIn).toBe(false);
+    expect(store.getState().userProcess.authError).toBeTruthy();
+    expect(store.getState().userProcess.isLoggingIn).toBe(false);
   });
   it('restores an existing authenticated session', async () => {
     saveToken('valid');
     mock.onGet('/login').reply(200, {...user, token: 'valid'});
     const store = makeStore();
     await store.dispatch(checkAuth());
-    expect(store.getState().authorizationStatus).toBe('Auth');
+    expect(store.getState().userProcess.authorizationStatus).toBe('Auth');
   });
   it('clears the session after logout', async () => {
     saveToken('valid');
@@ -81,7 +81,7 @@ describe('Offers and authentication', () => {
     const store = makeStore();
     store.dispatch(setUser(user));
     await store.dispatch(logout());
-    expect(store.getState()).toMatchObject({authorizationStatus: 'NoAuth', user: null});
+    expect(store.getState().userProcess).toMatchObject({authorizationStatus: 'NoAuth', user: null});
     expect(getToken()).toBe('');
   });
 });

@@ -8,7 +8,7 @@ import NotFoundPage from '../../pages/not-found-page/not-found-page';
 import PrivateRoute from '../private-route/private-route';
 
 export default function App(): JSX.Element {
-  const offers = useAppSelector((state) => state.offers);
+  const offers = useAppSelector((state) => state.offersData.offers);
   return (
     <BrowserRouter>
       <Routes>
