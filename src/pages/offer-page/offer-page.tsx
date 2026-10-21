@@ -1,4 +1,5 @@
-import {useAppSelector} from '../../hooks';
+import {postReview} from '../../store/api-actions';
+import {useAppDispatch, useAppSelector} from '../../hooks';
 import {useEffect, useState} from 'react';
 import {isAxiosError} from 'axios';
 import {api} from '../../store';
@@ -15,6 +16,7 @@ import ReviewForm from '../../components/review-form/review-form';
 import NotFoundPage from '../not-found-page/not-found-page';
 
 export default function OfferPage(): JSX.Element {
+  const dispatch = useAppDispatch();
   const isAuthorized = useAppSelector((state) => state.authorizationStatus === 'Auth');
   const {id} = useParams();
   const [offer, setOffer] = useState<OfferDetails | null>(null);
@@ -53,6 +55,10 @@ export default function OfferPage(): JSX.Element {
   if (status === 'error' || !offer) {
     return <><Header /><main className="container"><p role="alert">Could not load this offer. Please reload the page.</p></main></>;
   }
+  const handleReviewSubmit = async (data: {comment: string; rating: number}) => {
+    const review = await dispatch(postReview({offerId: offer.id, ...data})).unwrap();
+    setReviews((current) => [review, ...current]);
+  };
   return (
     <div className="page">
       <Header />
@@ -114,7 +120,7 @@ export default function OfferPage(): JSX.Element {
               </div>
               <section className="offer__reviews reviews">
                 <ReviewList reviews={reviews} />
-                {isAuthorized && <ReviewForm />}
+                {isAuthorized && <ReviewForm key={offer.id} onSubmit={handleReviewSubmit} />}
               </section>
             </div>
           </div>
