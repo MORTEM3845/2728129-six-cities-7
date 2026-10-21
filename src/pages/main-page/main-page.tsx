@@ -1,3 +1,4 @@
+import EmptyOffers from '../../components/empty-offers/empty-offers';
 import {selectCityOffers} from '../../store/selectors';
 import Spinner from '../../components/spinner/spinner';
 import {fetchOffers} from '../../store/api-actions';
@@ -49,7 +50,7 @@ export default function MainPage(): JSX.Element {
         <CityList cities={cities} selectedCity={cityName} onChange={handleCityChange} />
         <div className="cities">
           <div className={`cities__places-container container ${offers.length === 0 ? 'cities__places-container--empty' : ''}`}>
-            {offers.length ? <section className="cities__places places"><h2 className="visually-hidden">Places</h2><b className="places__found">{offers.length} places to stay in {cityName}</b><SortOptions value={sort} onChange={setSort} /><OfferList offers={sortedOffers} onActive={setActiveId} /></section> : <section className="cities__no-places"><div className="cities__status-wrapper tabs__content"><b className="cities__status">No places to stay available</b><p className="cities__status-description">We could not find any property available at the moment in {cityName}</p></div></section>}
+            {offers.length ? <section className="cities__places places"><h2 className="visually-hidden">Places</h2><b className="places__found">{offers.length} places to stay in {cityName}</b><SortOptions value={sort} onChange={setSort} /><OfferList offers={sortedOffers} onActive={setActiveId} /></section> : <EmptyOffers city={cityName} />}
             <div className="cities__right-section">{offers.length > 0 && <Map city={city} offers={offers} activeId={activeId} />}</div>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import BookmarkButton from '../../components/bookmark-button/bookmark-button';
 import {postReview} from '../../store/api-actions';
 import {useAppDispatch, useAppSelector} from '../../hooks';
 import {useEffect, useState} from 'react';
@@ -75,12 +76,7 @@ export default function OfferPage(): JSX.Element {
                 <h1 className="offer__name">
                   {offer.title}
                 </h1>
-                <button className="offer__bookmark-button button" type="button">
-                  <svg className="offer__bookmark-icon" width="31" height="33">
-                    <use xlinkHref="#icon-bookmark"></use>
-                  </svg>
-                  <span className="visually-hidden">To bookmarks</span>
-                </button>
+                <BookmarkButton offer={offer} variant="offer" />
               </div>
               <div className="offer__rating rating">
                 <div className="offer__stars rating__stars">

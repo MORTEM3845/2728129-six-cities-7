@@ -19,12 +19,20 @@ export const fetchOffers = createAsyncThunk<Offer[], undefined, {extra: AxiosIns
   }
 );
 
+export const fetchFavorites = createAsyncThunk<Offer[], undefined, {extra: AxiosInstance}>(
+  'favorites/fetch', async (_arg, {extra: api}) => (await api.get<Offer[]>('/favorite')).data
+);
+export const toggleFavorite = createAsyncThunk<Offer, {id: string; isFavorite: boolean}, {extra: AxiosInstance}>(
+  'favorites/toggle', async ({id, isFavorite}, {extra: api}) => (await api.post<Offer>(`/favorite/${id}/${isFavorite ? 0 : 1}`)).data
+);
+
 export const checkAuth = createAsyncThunk<void, undefined, {extra: AxiosInstance}>(
   'user/check', async (_arg, {extra: api, dispatch}) => {
     try {
       const {data} = await api.get<AuthInfo>('/login');
       const {token, ...user} = data;
       saveToken(token); dispatch(setUser(user));
+      await dispatch(fetchFavorites());
     } catch {
       dispatch(setUser(null));
     }
@@ -35,6 +43,7 @@ export const login = createAsyncThunk<void, {email: string; password: string}, {
     const {data} = await api.post<AuthInfo>('/login', credentials);
     const {token, ...user} = data;
     saveToken(token); dispatch(setUser(user));
+    await dispatch(fetchFavorites());
     await dispatch(fetchOffers());
   }
 );
